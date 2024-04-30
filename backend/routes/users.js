@@ -1,7 +1,15 @@
 import express from 'express';
-import { registerController } from '../controllers/user.js';
+import {
+  getUserProfile,
+  loginController,
+  registerController,
+} from '../controllers/user.js';
 const userRoutes = express.Router();
 
-userRoutes.get('/api/v1/users/register', registerController);
+userRoutes.post('/register', registerController);
+
+userRoutes.post('/login', loginController);
+
+userRoutes.get('/profile', getUserProfile);
 
 export default userRoutes;
