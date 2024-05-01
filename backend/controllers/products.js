@@ -26,7 +26,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   }
 
   //find the brand
-  const brandFound = await Brand.findOne({ name: brand.toLowerCase() });
+  const brandFound = await Brand.findOne({ name: brand?.toLowerCase() });
 
   if (!brandFound) {
     throw new Error('Brand not found. Please create the brand');
