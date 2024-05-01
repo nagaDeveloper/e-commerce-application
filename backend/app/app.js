@@ -7,12 +7,14 @@ import {
   globalErrorHandler,
   notFound,
 } from '../middlewares/globalErrorHandler.js';
+import productsRoute from '../routes/products.js';
 
 dotenv.config();
 dbConnect();
 const app = express();
 app.use(express.json());
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/product', productsRoute);
 
 //error middleware
 app.use(notFound);
