@@ -147,7 +147,7 @@ export const getProducts = asyncHandler(async (req, res) => {
   }
 
   //await the query
-  const products = await productQuery;
+  const products = await productQuery.populate('reviews');
   res.json({
     status: 'success',
     results: products.length,
@@ -159,7 +159,7 @@ export const getProducts = asyncHandler(async (req, res) => {
 });
 
 export const getProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findById(req.params.id).populate('reviews');
 
   if (!product) {
     throw new Error('Product not found');
