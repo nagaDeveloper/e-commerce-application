@@ -8,6 +8,7 @@ import {
   notFound,
 } from '../middlewares/globalErrorHandler.js';
 import productsRoute from '../routes/products.js';
+import categoriesRouter from '../routes/category.js';
 
 dotenv.config();
 dbConnect();
@@ -15,6 +16,7 @@ const app = express();
 app.use(express.json());
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/product', productsRoute);
+app.use('/api/v1/categories', categoriesRouter);
 
 //error middleware
 app.use(notFound);
