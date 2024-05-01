@@ -1,8 +1,8 @@
-//Brand schema
+//Color schema
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const BrandSchema = new Schema(
+const ColorSchema = new Schema(
   {
     name: {
       type: String,
@@ -13,16 +13,10 @@ const BrandSchema = new Schema(
       ref: 'User',
       required: true,
     },
-    products: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-      },
-    ],
   },
   { timestamps: true }
 );
 
-const Brand = mongoose.model('Brand', BrandSchema);
+const Color = mongoose.model('Color', ColorSchema);
 
-export default Brand;
+export default Color;

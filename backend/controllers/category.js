@@ -62,7 +62,7 @@ export const deleteCategory = asyncHandler(async (req, res) => {
   const category = await Category.findByIdAndDelete(req.params.id);
   res.json({
     status: 'success',
-    message: 'Product deleted successfully',
+    message: 'Category deleted successfully',
     category,
   });
 });
