@@ -70,7 +70,7 @@ export const loginController = asyncHandler(async (req, res) => {
 //dummy profile creation
 
 export const getUserProfile = asyncHandler(async (req, res) => {
-  console.log(req.headers);
+  // console.log(req.headers);
 
   //extract token from headers
   const token = getToken(req);
@@ -78,7 +78,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
   //verifying the token
   const verifiedToken = verifyToken(token);
-  console.log(verifiedToken, 'dfghj');
+  console.log(req, 'dfghj');
   res.json({
     msg: 'welcome to your profile',
   });
