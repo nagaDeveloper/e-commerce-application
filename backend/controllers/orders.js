@@ -4,12 +4,28 @@ import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
+import Coupon from '../models/Coupon.js';
 
 dotenv.config();
 //stripe instance
 const stripe = new Stripe(process.env.STRIPE_KEY);
 
 export const createOrder = asyncHandler(async (req, res) => {
+  //get the coupon
+  const { coupon } = req?.query;
+  const couponFound = await Coupon.findOne({
+    code: coupon?.toUpperCase(),
+  });
+
+  if (couponFound?.isExpired) {
+    throw new Error('Coupon has expired');
+  }
+  if (!couponFound) {
+    throw new Error('Coupon does not exists');
+  }
+
+  // apply the discount
+  const discount = couponFound?.discount / 100;
   //get the payload (customer, orderItems, address, price)
   const { orderItems, shippingAddress, totalPrice } = req.body;
   // find the user who is placing the order
@@ -28,7 +44,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     user: user?._id,
     orderItems,
     shippingAddress,
-    totalPrice,
+    totalPrice: couponFound ? totalPrice - totalPrice * discount : totalPrice,
   });
   console.log(order, 'order');
   //push order into users
