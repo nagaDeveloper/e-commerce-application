@@ -2,6 +2,12 @@ import Order from '../models/Order.js';
 import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+
+dotenv.config();
+//stripe instance
+const stripe = new Stripe(process.env.STRIPE_KEY);
 
 export const createOrder = asyncHandler(async (req, res) => {
   //get the payload (customer, orderItems, address, price)
@@ -32,20 +38,42 @@ export const createOrder = asyncHandler(async (req, res) => {
   const products = await Product.find({ _id: { $in: orderItems } });
   orderItems?.map(async (order) => {
     const product = products?.find((product) => {
-      return product?._id.toString() === order?._id.toString();
+      return product?._id === order?._id;
     });
     if (product) {
       product.totalSold += order.qty;
     }
-    await product.save();
+    // await product.save();
   });
   //make stripe payment
-  //payment webhook
-  //update the user order status
-  res.json({
-    success: true,
-    msg: 'Order created',
-    order,
-    user,
+  // convert orderItems to have the stripe order data
+  const convertedOrders = orderItems.map((item) => {
+    return {
+      price_data: {
+        currency: 'inr',
+        product_data: {
+          name: item?.name,
+          description: item?.description,
+        },
+        unit_amount: item?.price * 100,
+      },
+      quantity: item?.qty,
+    };
   });
+  const session = await stripe.checkout.sessions.create({
+    line_items: convertedOrders,
+    mode: 'payment',
+    success_url: 'http://localhost;3000/success',
+    cancel_url: 'http://localhost:3000/cancel',
+  });
+  res.send({ url: session.url });
+  //payment webhook
+
+  //update the user order status
+  // res.json({
+  //   success: true,
+  //   msg: 'Order created',
+  //   order,
+  //   user,
+  // });
 });
