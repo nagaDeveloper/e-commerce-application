@@ -70,17 +70,13 @@ export const loginController = asyncHandler(async (req, res) => {
 //dummy profile creation
 
 export const getUserProfile = asyncHandler(async (req, res) => {
-  // console.log(req.headers);
-
-  //extract token from headers
-  const token = getToken(req);
-  console.log(token, 'dfgh');
-
-  //verifying the token
-  const verifiedToken = verifyToken(token);
-  console.log(req, 'dfghj');
+  //find the user
+  const user = await User.findById(req.userAuthId?.id).populate('orders');
+  console.log(user, 'userIds');
   res.json({
+    status: 'success',
     msg: 'welcome to your profile',
+    user,
   });
 });
 

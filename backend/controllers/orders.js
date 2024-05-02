@@ -16,7 +16,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   const user = await User.findById(req.userAuthId?.id);
   console.log(user, 'user');
   //check if the user has shipping address
-  if (user?.hasShippingAddress) {
+  if (!user?.hasShippingAddress) {
     throw new Error('Please provide a shipping address');
   }
   //check if the order is not empty
@@ -79,4 +79,40 @@ export const createOrder = asyncHandler(async (req, res) => {
   //   order,
   //   user,
   // });
+});
+
+export const fetchAllOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find();
+  res.json({
+    success: true,
+    msg: 'Fetch all orders successfully',
+    orders,
+  });
+});
+
+export const fetchSingleOrder = asyncHandler(async (req, res) => {
+  //find order by id from params
+  const id = req.params.id;
+  const order = await Order.findById(id);
+  res.json({
+    success: true,
+    msg: 'Fetched order successfully',
+    order,
+  });
+});
+
+export const updateOrder = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const updatedOrder = await Order.findByIdAndUpdate(
+    id,
+    {
+      status: req.body.status,
+    },
+    { new: true }
+  );
+  res.json({
+    success: true,
+    msg: 'Order updated successfully',
+    updatedOrder,
+  });
 });
