@@ -39,8 +39,7 @@ const ProductSchema = new Schema(
     images: [
       {
         type: String,
-        // required: true,
-        default: 'https://via.placeholder.com/150',
+        required: true,
       },
     ],
 

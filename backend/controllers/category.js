@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-
 import Category from '../models/Category.js';
 
 export const createCategory = asyncHandler(async (req, res) => {
@@ -13,6 +12,7 @@ export const createCategory = asyncHandler(async (req, res) => {
   const category = await Category.create({
     name: name.toLowerCase(),
     user: req.userAuthId.id,
+    image: req.file.path,
   });
 
   res.json({

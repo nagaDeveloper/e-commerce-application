@@ -4,18 +4,12 @@ import Product from '../models/Product.js';
 import asyncHandler from 'express-async-handler';
 
 export const createProduct = asyncHandler(async (req, res) => {
-  const {
-    name,
-    description,
-    category,
-    sizes,
-    colors,
-    user,
-    price,
-    totalQty,
-    brand,
-  } = req.body;
+  const convertedImages = req.files.map((file) => file.path);
+
+  const { name, description, category, sizes, colors, price, totalQty, brand } =
+    req.body;
   console.log(req, 'req');
+  console.log(req.files, 'files');
   //check if the product already exists
   console.log(name, 'pro');
 
@@ -49,6 +43,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     price,
     totalQty,
     brand,
+    images: convertedImages,
   });
   // push the product into category
   categoryFound.products.push(product._id);
