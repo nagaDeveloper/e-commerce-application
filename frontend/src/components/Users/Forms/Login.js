@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { loginUserAction } from '../../../redux/slices/users/userSlice';
 
 const Login = () => {
+  //create an instance of dispatch
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    email: "admin@gmail.com",
-    password: "12345",
+    email: 'admin@gmail.com',
+    password: '12345',
   });
   //---Destructuring---
   const { email, password } = formData;
@@ -15,13 +19,14 @@ const Login = () => {
   //---onsubmit handler----
   const onSubmitHandler = (e) => {
     e.preventDefault();
+    dispatch(loginUserAction({ email, password }));
   };
 
   //select store data
   const { loading, userAuth } = {};
   //redirect
   if (userAuth?.userInfo?.status) {
-    window.location.href = "/admin";
+    window.location.href = '/admin';
   }
   return (
     <>
@@ -39,7 +44,8 @@ const Login = () => {
                 </p>
                 <form
                   className="flex flex-wrap -mx-4"
-                  onSubmit={onSubmitHandler}>
+                  onSubmit={onSubmitHandler}
+                >
                   <div className="w-full md:w-1/2 px-4 mb-8 md:mb-12">
                     <label>
                       <h4 className="mb-5 text-gray-400 uppercase font-bold font-heading">
@@ -82,7 +88,8 @@ const Login = () => {
               style={{
                 backgroundImage:
                   'url("https://cdn.pixabay.com/photo/2017/03/29/04/47/high-heels-2184095_1280.jpg")',
-              }}></div>
+              }}
+            ></div>
           </div>
         </div>
       </section>

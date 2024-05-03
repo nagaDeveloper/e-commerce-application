@@ -3,6 +3,7 @@ import express from 'express';
 import dbConnect from '../config/dbConnect.js';
 import userRoutes from '../routes/users.js';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import {
   globalErrorHandler,
   notFound,
@@ -89,6 +90,17 @@ app.post(
 );
 
 app.use(express.json());
+// app.use(cors);
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/product', productsRoute);
 app.use('/api/v1/categories', categoriesRouter);
