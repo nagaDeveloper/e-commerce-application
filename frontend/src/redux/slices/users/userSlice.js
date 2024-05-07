@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import baseURL from '../../../utils/baseURL.js';
 import { data } from 'autoprefixer';
+import { resetErrorAction } from '../globalActions/globalActions.js';
 //adding initialState
 const initialState = {
   loading: false,
@@ -12,9 +13,29 @@ const initialState = {
   userAuth: {
     loading: false,
     error: null,
-    userInfo: {},
+    userInfo: localStorage.getItem('userInfo')
+      ? JSON.parse(localStorage.getItem('userInfo'))
+      : null,
   },
 };
+
+//register action
+export const registerUserAction = createAsyncThunk(
+  'user/register',
+  async (payload, { rejectWithValue, getState, dispatch }) => {
+    try {
+      //http request for login
+      const response = await axios.post(`${baseURL}users/register`, {
+        email: payload?.email,
+        password: payload?.password,
+        fullname: payload?.fullname,
+      });
+      return response?.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data);
+    }
+  }
+);
 
 //login action
 export const loginUserAction = createAsyncThunk(
@@ -52,6 +73,24 @@ const userSlice = createSlice({
     builder.addCase(loginUserAction.rejected, (state, action) => {
       state.userAuth.error = action.payload;
       state.userAuth.loading = false;
+    });
+
+    //register
+    builder.addCase(registerUserAction.pending, (state, action) => {
+      state.loading = true;
+    });
+    builder.addCase(registerUserAction.fulfilled, (state, action) => {
+      state.user = action.payload;
+      state.loading = false;
+    });
+    builder.addCase(registerUserAction.rejected, (state, action) => {
+      state.error = action.payload;
+      state.loading = false;
+    });
+
+    //reset error action
+    builder.addCase(resetErrorAction.pending, (state) => {
+      state.error = null;
     });
   },
 });
