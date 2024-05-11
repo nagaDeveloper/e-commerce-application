@@ -7,37 +7,40 @@ import ErrorMsg from '../../ErrorMsg/ErrorMsg';
 import LoadingComponent from '../../LoadingComp/LoadingComponent';
 import SuccessMsg from '../../SuccessMsg/SuccessMsg';
 import { createProductAction } from '../../../redux/slices/products/productSlices';
-import { createAction } from '@reduxjs/toolkit';
 import { fetchCategoryAction } from '../../../redux/slices/categories/categorySlices';
+import { fetchBrandsAction } from '../../../redux/slices/categories/brandsSlice';
+import { fetchColorsAction } from '../../../redux/slices/categories/colorsSlice';
 //animated components for react-select
 const animatedComponents = makeAnimated();
 
 export default function AddProduct() {
+  const dispatch = useDispatch();
+
+  //files
+  const [files, setFiles] = useState([]);
+  const [fileErrs, setFileErrs] = useState([]);
+  //file handlechange
+  const fileHandleChange = (event) => {
+    const newFiles = Array.from(event.target.files);
+    //validation
+    const newErrs = [];
+    newFiles.forEach((file) => {
+      if (file?.size > 1000000) {
+        newErrs.push(`${file?.name} is too large`);
+      }
+      if (!file?.type?.startsWith('image/')) {
+        newErrs.push(`${file?.name} is not an image`);
+      }
+    });
+    setFiles(newFiles);
+    setFileErrs(newErrs);
+  };
+
   //sizes
   const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
   const [sizeOption, setSizeOption] = useState([]);
   const handleSizeChange = (sizes) => {
     setSizeOption(sizes);
-  };
-  let colorOptionsCoverted, handleColorChangeOption, brands, isAdded;
-
-  //---form data---
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    category: '',
-    sizes: '',
-    brand: '',
-    colors: '',
-    images: '',
-    price: '',
-    totalQty: '',
-  });
-
-  const dispatch = useDispatch();
-  //onChange
-  const handleOnChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   //convert the sizes
@@ -53,16 +56,71 @@ export default function AddProduct() {
     dispatch(fetchCategoryAction());
   }, [dispatch]);
 
+  // select data from store
+  const { categories } = useSelector((state) => state?.categories?.categories);
+  // let categories, error, loading;
+
+  //brands
+  useEffect(() => {
+    dispatch(fetchBrandsAction());
+  }, [dispatch]);
   //select data from store
-  const { categories, error, loading } = useSelector((state) => {
-    state?.categories?.categories;
+  const {
+    brands: { brands },
+  } = useSelector((state) => state?.brands);
+
+  //colors
+  const [colorsOption, setColorsOption] = useState([]);
+
+  const {
+    colors: { colors },
+  } = useSelector((state) => state?.colors);
+  useEffect(() => {
+    dispatch(fetchColorsAction());
+  }, [dispatch]);
+
+  const handleColorChangeOption = (colors) => {
+    setColorsOption(colors);
+  };
+  //converted colors
+  const colorsCoverted = colors?.map((color) => {
+    return {
+      value: color?.name,
+      label: color?.name,
+    };
   });
+
+  //---form data---
+  const [formData, setFormData] = useState({
+    name: '',
+    address: '',
+    district: '',
+    phone: '',
+  });
+
+  //onChange
+  const handleOnChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  //get product from store
+  const { product, isAdded, loading, error } = useSelector(
+    (state) => state?.products
+  );
 
   //onSubmit
   const handleOnSubmit = (e) => {
-    e.preventDefault(createProductAction(formData));
+    e.preventDefault();
     //dsiapatch
-    dispatch();
+    dispatch(
+      createProductAction({
+        ...formData,
+        files,
+        colors: colorsOption?.map((color) => color.label),
+        sizes: sizeOption?.map((size) => size?.label),
+      })
+    );
+    console.log(formData, 'form');
     //reset form data
     setFormData({
       name: '',
@@ -80,6 +138,9 @@ export default function AddProduct() {
   return (
     <>
       {error && <ErrorMsg message={error?.message} />}
+      {fileErrs?.length > 0 && (
+        <ErrorMsg message="file too large or upload an image" />
+      )}
       {isAdded && <SuccessMsg message="Product Added Successfully" />}
       <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -140,10 +201,6 @@ export default function AddProduct() {
                   className="mt-1  block w-full rounded-md border-gray-300 py-2  pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm border"
                   defaultValue="Canada"
                 >
-                  {/* <option>-- Select Category --</option>
-                  <option value="Clothings">Clothings</option>
-                  <option value="Shoes">Shoes</option>
-                  <option value="Accessories">Accessories</option> */}
                   <option>-- Select Category --</option>
                   {categories?.map((category) => (
                     <option key={category?._id} value={category?.name}>
@@ -172,7 +229,6 @@ export default function AddProduct() {
                   ))}
                 </select>
               </div>
-
               {/* Select Color */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -182,7 +238,7 @@ export default function AddProduct() {
                   components={animatedComponents}
                   isMulti
                   name="colors"
-                  options={colorOptionsCoverted}
+                  options={colorsCoverted}
                   className="basic-multi-select"
                   classNamePrefix="select"
                   isClearable={true}

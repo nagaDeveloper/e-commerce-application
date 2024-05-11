@@ -1,8 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import baseURL from '../../../utils/baseURL';
-import { data } from 'autoprefixer';
-
+import {
+  resetErrorAction,
+  resetSuccessAction,
+} from '../globalActions/globalActions';
 const initialState = {
   categories: [],
   category: {},
@@ -18,11 +20,15 @@ export const createCategoryAction = createAsyncThunk(
   'category/create',
   async (payload, { rejectWithValue, getState, dispatch }) => {
     try {
-      const { name } = payload;
+      const { name, file } = payload;
+      //fromData
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('file', file);
 
       //token extraction for auhenticate
       console.log(getState());
-      const token = getState().users?.userAuth?.userInfo?.token;
+      const token = getState()?.users?.userAuth?.userInfo?.token;
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -31,10 +37,8 @@ export const createCategoryAction = createAsyncThunk(
 
       //make reqest
       const { data } = await axios.post(
-        `${baseURL}categories`,
-        {
-          name,
-        },
+        `${baseURL}/categories`,
+        formData,
         config
       );
       return data;
@@ -49,8 +53,6 @@ export const fetchCategoryAction = createAsyncThunk(
   'category/fetch All',
   async (payload, { rejectWithValue, getState, dispatch }) => {
     try {
-      const { name } = payload;
-
       //token extraction for auhenticate
       console.log(getState());
       // const token = getState().users?.userAuth?.userInfo?.token;
@@ -61,7 +63,8 @@ export const fetchCategoryAction = createAsyncThunk(
       // };
 
       //make reqest
-      const { data } = await axios.get(`${baseURL}categories`);
+      const { data } = await axios.get(`${baseURL}/categories`);
+      console.log(data, 'dats');
       return data;
     } catch (error) {
       return rejectWithValue(error?.response?.data);
@@ -83,27 +86,34 @@ const categorySlice = createSlice({
       state.category = action?.payload;
       state.isAdded = true;
     });
-    builder.addCase(createCategoryAction.fulfilled, (state, action) => {
+    builder.addCase(createCategoryAction.rejected, (state, action) => {
       state.loading = false;
       state.category = null;
       state.isAdded = false;
       state.error = action.payload;
     });
 
-    //fetch
+    //fetch all
     builder.addCase(fetchCategoryAction.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(fetchCategoryAction.fulfilled, (state, action) => {
       state.loading = false;
       state.categories = action?.payload;
-      state.isAdded = true;
     });
-    builder.addCase(fetchCategoryAction.fulfilled, (state, action) => {
+    builder.addCase(fetchCategoryAction.rejected, (state, action) => {
       state.loading = false;
       state.categories = null;
-      state.isAdded = false;
       state.error = action.payload;
+    });
+
+    //Reset err
+    builder.addCase(resetErrorAction.pending, (state, action) => {
+      state.error = null;
+    });
+    //Reset success
+    builder.addCase(resetSuccessAction.pending, (state, action) => {
+      state.isAdded = false;
     });
   },
 });

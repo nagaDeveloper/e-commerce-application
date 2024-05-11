@@ -29,11 +29,11 @@ const Login = () => {
   );
 
   // redirect after login
-  if (userInfo?.user?.isAdmin) {
-    window.location.href = '/admin';
-  } else {
-    window.location.href = '/customer-profile';
-  }
+  // if (userInfo?.user?.isAdmin) {
+  //   window.location.href = '/admin';
+  // } else {
+  //   window.location.href = '/customer-profile';
+  // }
 
   return (
     <>

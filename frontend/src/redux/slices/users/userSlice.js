@@ -1,8 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import baseURL from '../../../utils/baseURL.js';
-import { data } from 'autoprefixer';
-import { resetErrorAction } from '../globalActions/globalActions.js';
+import {
+  resetErrorAction,
+  resetSuccessAction,
+} from '../globalActions/globalActions.js';
 //adding initialState
 const initialState = {
   loading: false,
@@ -24,8 +26,8 @@ export const registerUserAction = createAsyncThunk(
   'user/register',
   async (payload, { rejectWithValue, getState, dispatch }) => {
     try {
-      //http request for login
-      const response = await axios.post(`${baseURL}users/register`, {
+      //http request for register
+      const response = await axios.post(`${baseURL}/users/register`, {
         email: payload?.email,
         password: payload?.password,
         fullname: payload?.fullname,
@@ -43,7 +45,7 @@ export const loginUserAction = createAsyncThunk(
   async (payload, { rejectWithValue, getState, dispatch }) => {
     try {
       //http request for login
-      const response = await axios.post(`${baseURL}users/login`, {
+      const response = await axios.post(`${baseURL}/users/login`, {
         email: payload?.email,
         password: payload?.password,
       });

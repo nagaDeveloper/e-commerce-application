@@ -21,6 +21,7 @@ import couponRouter from '../routes/coupon.js';
 dotenv.config();
 dbConnect();
 const app = express();
+app.use(cors());
 
 //stripe webhook
 
@@ -90,16 +91,15 @@ app.post(
 );
 
 app.use(express.json());
-// app.use(cors);
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-  );
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader(
+//     'Access-Control-Allow-Methods',
+//     'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+//   );
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//   next();
+// });
 
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/product', productsRoute);
